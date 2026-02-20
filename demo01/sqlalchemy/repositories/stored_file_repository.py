@@ -16,6 +16,18 @@ class StoredFileRepository:
         self.session = session
 
     # -------- Read --------
+    def get_meta_and_blob(self, file_id: uuid.UUID) -> Optional[tuple[StoredFile, str]]:
+        file_obj = self.get_meta(file_id)
+        if not file_obj:
+            return None
+
+        stmt = select(StoredFileBlob.content_b64).where(StoredFileBlob.file_id == file_id)
+        b64 = self.session.execute(stmt).scalars().first()
+        if b64 is None:
+            return None
+
+        return file_obj, b64
+    
     def get_meta(self, file_id: uuid.UUID) -> Optional[StoredFile]:
         stmt = select(StoredFile).where(
             StoredFile.id == file_id,

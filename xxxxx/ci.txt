@@ -1,0 +1,37 @@
+### ① Cross-Region Inference とは
+
+定義
+
+Cross-Region Inference とは、
+現在のリージョンからモデルを呼び出すが、実際の推論処理は別のリージョンで実行される仕組みである。
+
+### ② 例
+
+例えば、以下の環境の場合：
+
+リージョン：ap-northeast-1（Tokyo）
+モデル：GLOBAL Anthropic Claude Opus 4.5
+
+実際の処理の流れは次の通り。
+
+```
+Tokyo API Endpoint
+        ↓
+Amazon Bedrock Routing Layer
+        ↓
+US Region GPU Cluster
+        ↓
+モデル推論
+        ↓
+レスポンス返却
+```
+
+
+### ③ ポイント
+
+そのため、以下のような関係になる。
+
+APIを呼び出すリージョン ≠ 実際に推論を実行するリージョン
+
+つまり、東京リージョンからAPIを呼び出しても、
+実際の推論処理は USリージョンのGPUクラスタで実行される場合がある。

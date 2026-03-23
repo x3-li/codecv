@@ -1,1 +1,12 @@
-帮我写一个脚本， 只写主要功能逻辑。 要求： 1. 给你一个pdf文件， 假设有超过200页， 你需要使用gemini multimodal的能力， 把pdf的内容按照页数把文字抽取出来。 但是200也文字内容太多。 会超出output token限制， 所以定义一个batch size 是50， 让llm 每50页内容抽出来。 2. 默认使用thinking level 是high 如果high 挂了自动降级成 low重试， low挂了最终随便写一个兜底的
+
+
+
+帮我写一个python脚本， 只写主要功能逻辑。 
+
+功能介绍:
+input是一个大pdf文件，大概200页。 output是使用llm大模型抽出的pdf所有文字信息，按照页数顺序出力。
+
+要求：
+1. 设置一个batch size变量，假设一开始是50，把原始pdf按照50页拆分若干份。 被拆分的pdf逐个喂给llm抽出文字信息。
+2. 如果batch size是50的场合，llm出力失败了， 那么就 50 / 2 = 25， 删除之前被拆分的tmp文件，使用batch size 25再次拆分处理。
+3. llm 使用的是gemini简单点就可以。langchain调用

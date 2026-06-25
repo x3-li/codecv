@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>開発者作業サポート - Web PPT</title>
+  <style>
+    :root {
+      --paper: #f7f1e6;
+      --paper-2: #fffaf0;
+      --ink: #263238;
+      --muted: #65706b;
+      --line: rgba(57, 64, 60, 0.18);
+      --sumi: #1f2a30;
+      --indigo: #1f4d5a;
+      --mizu: #80aeb2;
+      --sakura: #d58b91;
+      --kurenai: #b94b45;
+      --matcha: #778b5f;
+      --gold: #c39845;
+      --shadow: 0 18px 55px rgba(30, 34, 32, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      color: var(--ink);
+      font-family: "Yu Gothic UI", "Hiragino Sans", "Microsoft YaHei UI", "Noto Sans CJK SC", system-ui, sans-serif;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.24) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(0deg, rgba(255,255,255,0.24) 1px, transparent 1px) 0 0 / 28px 28px,
+        radial-gradient(circle at 22% 14%, rgba(213,139,145,0.16), transparent 28%),
+        radial-gradient(circle at 84% 86%, rgba(128,174,178,0.18), transparent 31%),
+        linear-gradient(135deg, var(--paper-2), var(--paper));
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      content: "";
+      opacity: 0.38;
+      background-image:
+        repeating-linear-gradient(18deg, rgba(40, 43, 41, 0.035) 0 1px, transparent 1px 9px),
+        repeating-linear-gradient(96deg, rgba(40, 43, 41, 0.026) 0 1px, transparent 1px 13px);
+      mix-blend-mode: multiply;
+    }
+
+    .deck {
+      position: relative;
+      z-index: 1;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: clamp(18px, 2vw, 30px);
+      padding: clamp(30px, 4vw, 58px) clamp(36px, 5vw, 76px);
+      opacity: 0;
+      transform: translateX(42px) scale(0.985);
+      pointer-events: none;
+      transition: opacity 360ms ease, transform 420ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .slide::after {
+      position: absolute;
+      right: clamp(24px, 4vw, 58px);
+      bottom: clamp(22px, 3vw, 42px);
+      width: min(24vw, 270px);
+      height: min(26vw, 280px);
+      z-index: -1;
+      content: "";
+      opacity: 0.12;
+      background:
+        linear-gradient(120deg, transparent 48%, var(--sumi) 49% 51%, transparent 52%) center / 100% 100%,
+        radial-gradient(ellipse at 68% 35%, transparent 0 42%, var(--sumi) 43% 45%, transparent 46%),
+        radial-gradient(ellipse at 56% 52%, transparent 0 39%, var(--sumi) 40% 42%, transparent 43%);
+      border-radius: 45% 55% 52% 48%;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 28px;
+      min-height: 64px;
+      border-top: 1px solid var(--line);
+      padding-top: 18px;
+    }
+
+    .kicker {
+      margin: 0 0 8px;
+      color: var(--kurenai);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 980px;
+      font-size: clamp(56px, 8.5vw, 122px);
+      line-height: 0.96;
+      font-weight: 800;
+      letter-spacing: 0;
+      color: var(--sumi);
+    }
+
+    h2 {
+      max-width: 1040px;
+      font-size: clamp(34px, 5vw, 70px);
+      line-height: 1.04;
+      font-weight: 800;
+      letter-spacing: 0;
+      color: var(--sumi);
+    }
+
+    h3 {
+      font-size: clamp(20px, 2.1vw, 30px);
+      line-height: 1.16;
+      font-weight: 760;
+      color: var(--sumi);
+    }
+
+    .subhead {
+      max-width: 780px;
+      margin-top: 24px;
+      font-size: clamp(18px, 2.1vw, 28px);
+      line-height: 1.58;
+      color: var(--muted);
+    }
+
+    .stamp {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 72px;
+      height: 72px;
+      border: 2px solid rgba(185, 75, 69, 0.72);
+      color: var(--kurenai);
+      font-weight: 800;
+      line-height: 1.04;
+      text-align: center;
+      transform: rotate(3deg);
+      background: rgba(255, 250, 240, 0.54);
+    }
+
+    main {
+      align-self: stretch;
+      display: grid;
+      align-items: center;
+    }
+
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      color: rgba(38, 50, 56, 0.58);
+      font-size: 13px;
+    }
+
+    .slide-no {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      white-space: nowrap;
+    }
+
+    .slide-no::before {
+      width: 38px;
+      height: 1px;
+      content: "";
+      background: currentColor;
+    }
+
+    .title-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+      gap: clamp(32px, 6vw, 90px);
+      align-items: center;
+    }
+
+    .title-minimal {
+      grid-template-rows: 1fr;
+      place-items: center;
+      text-align: center;
+    }
+
+    .title-minimal main {
+      width: 100%;
+      place-items: center;
+    }
+
+    .title-minimal h1 {
+      font-size: clamp(56px, 8vw, 118px);
+      letter-spacing: 0;
+    }
+
+    .title-minimal .subhead {
+      max-width: none;
+      margin-top: 20px;
+      color: var(--kurenai);
+      font-size: clamp(18px, 2vw, 27px);
+      font-weight: 760;
+      letter-spacing: 0.12em;
+    }
+
+    .title-minimal footer {
+      position: absolute;
+      left: clamp(36px, 5vw, 76px);
+      right: clamp(36px, 5vw, 76px);
+      bottom: clamp(22px, 3vw, 42px);
+    }
+
+    .logo-lockup {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .brand-logo {
+      flex: none;
+      width: clamp(76px, 8vw, 110px);
+      height: clamp(76px, 8vw, 110px);
+      filter: drop-shadow(0 14px 24px rgba(31, 42, 48, 0.14));
+    }
+
+    .brand-logo text {
+      font-family: "Yu Gothic UI", "Microsoft YaHei UI", system-ui, sans-serif;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .enso {
+      width: min(34vw, 430px);
+      aspect-ratio: 1;
+      justify-self: center;
+    }
+
+    .enso path,
+    .enso circle {
+      fill: none;
+      stroke-linecap: round;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      color: var(--indigo);
+      font-size: 15px;
+      font-weight: 720;
+      background: rgba(255, 250, 240, 0.58);
+    }
+
+    .toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 28px;
+      max-width: 1060px;
+    }
+
+    .toc-item {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      align-items: center;
+      min-height: 70px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .toc-num {
+      color: var(--kurenai);
+      font-size: 18px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .toc-text {
+      font-size: clamp(19px, 2vw, 28px);
+      font-weight: 780;
+      color: var(--sumi);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: clamp(28px, 4vw, 64px);
+      align-items: center;
+    }
+
+    .focus-copy {
+      display: grid;
+      gap: 18px;
+    }
+
+    .lead {
+      font-size: clamp(25px, 3.2vw, 46px);
+      line-height: 1.2;
+      font-weight: 790;
+      color: var(--sumi);
+    }
+
+    .support {
+      max-width: 700px;
+      color: var(--muted);
+      font-size: clamp(17px, 1.55vw, 23px);
+      line-height: 1.68;
+    }
+
+    .point-list {
+      display: grid;
+      gap: 13px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .point-list li {
+      display: grid;
+      grid-template-columns: 14px 1fr;
+      gap: 13px;
+      align-items: start;
+      color: var(--ink);
+      font-size: clamp(17px, 1.6vw, 23px);
+      line-height: 1.46;
+    }
+
+    .point-list li::before {
+      width: 9px;
+      height: 9px;
+      margin-top: 0.55em;
+      content: "";
+      background: var(--gold);
+      transform: rotate(45deg);
+    }
+
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .note {
+      min-height: 134px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 240, 0.68);
+      box-shadow: var(--shadow);
+    }
+
+    .note strong {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--kurenai);
+      font-size: 17px;
+    }
+
+    .note span {
+      display: block;
+      color: var(--sumi);
+      font-size: clamp(19px, 1.8vw, 26px);
+      line-height: 1.35;
+      font-weight: 760;
+    }
+
+    .arch-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      align-items: center;
+      width: min(1180px, 100%);
+      margin: 0 auto;
+    }
+
+    .arch {
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 20px 32px rgba(31, 42, 48, 0.12));
+    }
+
+    .arch text {
+      font-family: "Yu Gothic UI", "Microsoft YaHei UI", system-ui, sans-serif;
+      letter-spacing: 0;
+    }
+
+    .arch .box {
+      stroke: rgba(31, 42, 48, 0.18);
+      stroke-width: 2;
+      fill: rgba(255, 250, 240, 0.9);
+    }
+
+    .arch .server {
+      fill: #e8efe7;
+    }
+
+    .arch .gpu {
+      fill: rgba(31, 77, 90, 0.08);
+      stroke: rgba(31, 77, 90, 0.45);
+    }
+
+    .arch .flow {
+      fill: none;
+      stroke: var(--kurenai);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      marker-end: url(#arrow);
+      stroke-dasharray: 10 10;
+      animation: dash 1.8s linear infinite;
+    }
+
+    .arch .branch {
+      stroke: var(--indigo);
+      marker-end: url(#arrowBlue);
+    }
+
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -40;
+      }
+    }
+
+    .model-board {
+      display: grid;
+      gap: 26px;
+      justify-items: center;
+    }
+
+    .model-name {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(140px, 1fr));
+      width: min(1040px, 100%);
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 240, 0.78);
+      box-shadow: var(--shadow);
+    }
+
+    .model-part {
+      position: relative;
+      display: grid;
+      align-content: center;
+      min-height: 150px;
+      padding: 22px 18px;
+      text-align: center;
+      border-right: 1px solid var(--line);
+    }
+
+    .model-part:last-child {
+      border-right: 0;
+    }
+
+    .model-token {
+      display: block;
+      margin-bottom: 14px;
+      color: var(--kurenai);
+      font-size: clamp(28px, 3.7vw, 54px);
+      line-height: 1;
+      font-weight: 850;
+    }
+
+    .model-meaning {
+      color: var(--sumi);
+      font-size: clamp(17px, 1.6vw, 23px);
+      line-height: 1.32;
+      font-weight: 760;
+    }
+
+    .model-caption {
+      color: var(--muted);
+      font-size: clamp(18px, 1.7vw, 25px);
+      line-height: 1.52;
+      text-align: center;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .feature {
+      min-height: 178px;
+      padding: 23px;
+      border-left: 4px solid var(--gold);
+      background: rgba(255, 250, 240, 0.72);
+      box-shadow: var(--shadow);
+    }
+
+    .feature:nth-child(2n) {
+      border-left-color: var(--mizu);
+    }
+
+    .feature:nth-child(3n) {
+      border-left-color: var(--sakura);
+    }
+
+    .feature small {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--kurenai);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .feature p {
+      color: var(--muted);
+      font-size: clamp(16px, 1.28vw, 20px);
+      line-height: 1.55;
+    }
+
+    .proxy-map {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.75fr) minmax(0, 1fr);
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .proxy-center {
+      display: grid;
+      align-content: center;
+      gap: 18px;
+      padding: 30px;
+      border: 1px solid var(--line);
+      background: var(--sumi);
+      color: var(--paper-2);
+      box-shadow: var(--shadow);
+    }
+
+    .proxy-center .code {
+      display: inline-block;
+      width: fit-content;
+      padding: 10px 12px;
+      background: rgba(255, 250, 240, 0.12);
+      color: #ffe8c0;
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: clamp(16px, 1.3vw, 20px);
+    }
+
+    .module-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .module {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 14px;
+      align-items: center;
+      min-height: 96px;
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 250, 240, 0.42);
+    }
+
+    .module-icon {
+      display: grid;
+      place-items: center;
+      width: 52px;
+      height: 52px;
+      color: var(--paper-2);
+      font-size: 24px;
+      font-weight: 800;
+      background: var(--indigo);
+      border-radius: 50%;
+    }
+
+    .module:nth-child(2n) .module-icon {
+      background: var(--matcha);
+    }
+
+    .module:nth-child(3n) .module-icon {
+      background: var(--kurenai);
+    }
+
+    .module p {
+      color: var(--muted);
+      font-size: clamp(15px, 1.2vw, 19px);
+      line-height: 1.42;
+    }
+
+    .discussion {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .question {
+      min-height: 260px;
+      display: grid;
+      align-content: space-between;
+      padding: 26px;
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 240, 0.7);
+      box-shadow: var(--shadow);
+    }
+
+    .question b {
+      color: var(--kurenai);
+      font-size: 15px;
+    }
+
+    .question span {
+      display: block;
+      color: var(--sumi);
+      font-size: clamp(22px, 2.2vw, 34px);
+      line-height: 1.24;
+      font-weight: 790;
+    }
+
+    .thanks {
+      display: grid;
+      justify-items: center;
+      text-align: center;
+      gap: 26px;
+    }
+
+    .thanks h2 {
+      font-size: clamp(54px, 8vw, 116px);
+    }
+
+    .thanks .subhead {
+      margin: 0;
+    }
+
+    .controls {
+      position: fixed;
+      right: 20px;
+      bottom: 18px;
+      z-index: 10;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px;
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 240, 0.78);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(30, 34, 32, 0.12);
+    }
+
+    .controls button {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 34px;
+      border: 0;
+      color: var(--sumi);
+      font-size: 19px;
+      font-weight: 800;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .controls button:hover {
+      background: rgba(31, 77, 90, 0.09);
+    }
+
+    .progress {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 11;
+      height: 4px;
+      background: rgba(31, 42, 48, 0.1);
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      width: 10%;
+      background: linear-gradient(90deg, var(--kurenai), var(--gold), var(--indigo));
+      transition: width 260ms ease;
+    }
+
+    @media (max-width: 860px) {
+      body {
+        overflow: auto;
+      }
+
+      .deck {
+        height: auto;
+      }
+
+      .slide {
+        position: relative;
+        min-height: 100vh;
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .controls,
+      .progress {
+        display: none;
+      }
+
+      .title-layout,
+      .two-col,
+      .proxy-map {
+        grid-template-columns: 1fr;
+      }
+
+      .toc,
+      .kanban,
+      .feature-grid,
+      .module-list,
+      .discussion {
+        grid-template-columns: 1fr;
+      }
+
+      .model-name {
+        grid-template-columns: 1fr;
+      }
+
+      .model-part {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .model-part:last-child {
+        border-bottom: 0;
+      }
+
+      .enso {
+        width: min(70vw, 360px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck" id="deck">
+    <section class="slide active title-minimal" data-title="プロジェクト名">
+      <main>
+        <div>
+          <p class="kicker">Department Zoom Share</p>
+          <h1>開発者作業サポート</h1>
+          <p class="subhead">本番室ローカル LLM</p>
+        </div>
+      </main>
+      <footer><span>OpenWebUI / LiteLLM / vLLM / DGX Spark</span><span class="slide-no">0 / 9</span></footer>
+    </section>
+
+    <section class="slide" data-title="目次">
+      <header>
+        <div>
+          <p class="kicker">Agenda</p>
+          <h2>目次</h2>
+        </div>
+        <div class="stamp">目次</div>
+      </header>
+      <main>
+        <div class="toc">
+          <div class="toc-item"><span class="toc-num">02</span><span class="toc-text">プロジェクト背景</span></div>
+          <div class="toc-item"><span class="toc-num">03</span><span class="toc-text">全体アーキテクチャ</span></div>
+          <div class="toc-item"><span class="toc-num">04</span><span class="toc-text">モデル名の分解</span></div>
+          <div class="toc-item"><span class="toc-num">05</span><span class="toc-text">vLLM の役割</span></div>
+          <div class="toc-item"><span class="toc-num">06</span><span class="toc-text">LiteLLM の役割</span></div>
+          <div class="toc-item"><span class="toc-num">07</span><span class="toc-text">OpenWebUI の役割</span></div>
+          <div class="toc-item"><span class="toc-num">08</span><span class="toc-text">ディスカッション</span></div>
+          <div class="toc-item"><span class="toc-num">09</span><span class="toc-text">ご清聴ありがとうございました</span></div>
+        </div>
+      </main>
+      <footer><span>アーキテクチャを軸に、概念よりも本プロジェクトでの実装イメージを中心に紹介します</span><span class="slide-no">1 / 9</span></footer>
+    </section>
+
+    <section class="slide" data-title="背景">
+      <header>
+        <div>
+          <p class="kicker">Background</p>
+          <h2>背景</h2>
+        </div>
+        <div class="stamp">背景</div>
+      </header>
+      <main>
+        <div class="two-col">
+          <div class="focus-copy">
+            <p class="lead">本番室はインターネットに接続できません。それでも作業判断は止められません。</p>
+            <p class="support">保守、障害対応、リリース作業では、コマンドの意味、ログの手掛かり、設定差分、作業手順を確認する場面が多くあります。これまでは経験、文書、人による確認に頼っていました。そこで、安全境界の内側にローカル AI アシスタントを用意します。</p>
+          </div>
+          <div class="kanban">
+            <div class="note"><strong>現場の課題</strong><span>困った時に外部検索やオンライン AI を使えない</span></div>
+            <div class="note"><strong>安全前提</strong><span>本番情報は内網から出さず、推論はローカルで完結</span></div>
+            <div class="note"><strong>目指す機能</strong><span>コマンド説明、ログ分析、手順確認、初動調査</span></div>
+            <div class="note"><strong>構成方針</strong><span>ブラウザ入口 + 負荷分散 + 2 台の GPU 推論ノード</span></div>
+          </div>
+        </div>
+      </main>
+      <footer><span>ポイント：本番室の隔離ルールを守りながら、AI 支援を作業現場へ持ち込む</span><span class="slide-no">2 / 9</span></footer>
+    </section>
+
+    <section class="slide" data-title="アーキテクチャ">
+      <header>
+        <div>
+          <p class="kicker">Architecture</p>
+          <h2>ブラウザから GPU 推論までの流れ</h2>
+        </div>
+        <div class="stamp">構成</div>
+      </header>
+      <main>
+        <div class="arch-wrap">
+          <svg class="arch" viewBox="0 0 1200 620" role="img" aria-label="OpenWebUI LiteLLM vLLM DGX Spark architecture diagram">
+            <defs>
+              <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L9,3 z" fill="#b94b45"></path>
+              </marker>
+              <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L9,3 z" fill="#1f4d5a"></path>
+              </marker>
+              <filter id="softShadow">
+                <feDropShadow dx="0" dy="9" stdDeviation="12" flood-color="#1f2a30" flood-opacity=".13"/>
+              </filter>
+            </defs>
+
+            <rect x="30" y="80" width="190" height="160" rx="16" class="box" filter="url(#softShadow)"/>
+            <rect x="68" y="124" width="114" height="72" rx="8" fill="#d9e7e6" stroke="#80aeb2" stroke-width="3"/>
+            <path d="M96 208h58l15 24H81z" fill="#8fb5b5" opacity=".9"/>
+            <text x="125" y="55" text-anchor="middle" fill="#b94b45" font-size="20" font-weight="800">本番室 PC</text>
+            <text x="125" y="285" text-anchor="middle" fill="#263238" font-size="23" font-weight="800">Browser</text>
+            <text x="125" y="316" text-anchor="middle" fill="#65706b" font-size="16">内部 URL でアクセス</text>
+
+            <rect x="320" y="72" width="210" height="178" rx="18" class="box" filter="url(#softShadow)"/>
+            <rect x="354" y="110" width="142" height="98" rx="10" fill="#fffaf0" stroke="#1f4d5a" stroke-width="3"/>
+            <circle cx="376" cy="132" r="7" fill="#d58b91"/>
+            <circle cx="398" cy="132" r="7" fill="#c39845"/>
+            <circle cx="420" cy="132" r="7" fill="#80aeb2"/>
+            <path d="M376 166h98M376 188h66" stroke="#1f2a30" stroke-width="5" stroke-linecap="round" opacity=".72"/>
+            <text x="425" y="286" text-anchor="middle" fill="#263238" font-size="25" font-weight="850">OpenWebUI</text>
+            <text x="425" y="318" text-anchor="middle" fill="#65706b" font-size="16">Chat UI / 利用者入口</text>
+
+            <rect x="632" y="70" width="210" height="180" rx="18" class="box" filter="url(#softShadow)"/>
+            <path d="M700 126h76l38 42-38 42h-76l-38-42z" fill="#f7e5d5" stroke="#b94b45" stroke-width="4"/>
+            <path d="M704 168h70M737 132v72" stroke="#b94b45" stroke-width="5" stroke-linecap="round"/>
+            <text x="737" y="286" text-anchor="middle" fill="#263238" font-size="25" font-weight="850">LiteLLM</text>
+            <text x="737" y="318" text-anchor="middle" fill="#65706b" font-size="16">Proxy + Load Balancing</text>
+            <text x="737" y="348" text-anchor="middle" fill="#b94b45" font-size="16" font-weight="800">simple-shuffle</text>
+
+            <rect x="935" y="30" width="230" height="242" rx="18" class="box server" filter="url(#softShadow)"/>
+            <rect x="966" y="78" width="168" height="76" rx="10" class="gpu" stroke-width="3"/>
+            <path d="M986 116h128M1006 98v36M1034 98v36M1062 98v36M1090 98v36" stroke="#1f4d5a" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+            <text x="1050" y="58" text-anchor="middle" fill="#1f4d5a" font-size="21" font-weight="850">DGX Spark #1</text>
+            <text x="1050" y="188" text-anchor="middle" fill="#263238" font-size="22" font-weight="850">vLLM</text>
+            <text x="1050" y="218" text-anchor="middle" fill="#65706b" font-size="16">GPU 推論サービス</text>
+            <text x="1050" y="248" text-anchor="middle" fill="#b94b45" font-size="16" font-weight="850">Gemma-4-26B-A4B-NVFP4</text>
+
+            <rect x="935" y="345" width="230" height="242" rx="18" class="box server" filter="url(#softShadow)"/>
+            <rect x="966" y="393" width="168" height="76" rx="10" class="gpu" stroke-width="3"/>
+            <path d="M986 431h128M1006 413v36M1034 413v36M1062 413v36M1090 413v36" stroke="#1f4d5a" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+            <text x="1050" y="373" text-anchor="middle" fill="#1f4d5a" font-size="21" font-weight="850">DGX Spark #2</text>
+            <text x="1050" y="503" text-anchor="middle" fill="#263238" font-size="22" font-weight="850">vLLM</text>
+            <text x="1050" y="533" text-anchor="middle" fill="#65706b" font-size="16">第 2 推論ノード</text>
+            <text x="1050" y="563" text-anchor="middle" fill="#b94b45" font-size="16" font-weight="850">Gemma-4-26B-A4B-NVFP4</text>
+
+            <path class="flow" d="M220 160 C260 160 280 160 320 160"/>
+            <path class="flow" d="M530 160 C575 160 590 160 632 160"/>
+            <path class="flow branch" d="M842 156 C888 122 890 122 935 122"/>
+            <path class="flow branch" d="M842 192 C895 342 890 430 935 450"/>
+
+            <path d="M62 520 C180 486 230 536 346 500 S556 470 676 518 894 534 1100 492" fill="none" stroke="#c39845" stroke-width="4" opacity=".45"/>
+            <text x="603" y="590" text-anchor="middle" fill="#65706b" font-size="19">Browser → OpenWebUI → LiteLLM → vLLM on two DGX Spark GPUs</text>
+          </svg>
+        </div>
+      </main>
+      <footer><span>OpenWebUI は画面体験、LiteLLM は転送と分散、vLLM は GPU 上でのモデル推論を担当します</span><span class="slide-no">3 / 9</span></footer>
+    </section>
+
+    <section class="slide" data-title="モデル名分解">
+      <header>
+        <div>
+          <p class="kicker">Model Name</p>
+          <h2>モデル名の分解</h2>
+        </div>
+        <div class="stamp">モデル</div>
+      </header>
+      <main>
+        <div class="model-board">
+          <div class="model-name" aria-label="Gemma-4-26B-A4B-NVFP4 model name split into four parts">
+            <div class="model-part">
+              <span class="model-token">Gemma-4</span>
+              <span class="model-meaning">Gemma ファミリー<br>第 4 世代モデル</span>
+            </div>
+            <div class="model-part">
+              <span class="model-token">26B</span>
+              <span class="model-meaning">総パラメータ規模<br>約 260 億</span>
+            </div>
+            <div class="model-part">
+              <span class="model-token">A4B</span>
+              <span class="model-meaning">推論時に<br>約 40 億を有効化</span>
+            </div>
+            <div class="model-part">
+              <span class="model-token">NVFP4</span>
+              <span class="model-meaning">NVIDIA FP4<br>低精度量子化形式</span>
+            </div>
+          </div>
+          <p class="model-caption">正式名称：<strong>Gemma-4-26B-A4B-NVFP4</strong><br>読み方はシンプルです。Gemma 第 4 世代、総規模 26B、推論時に約 4B を有効化し、NVFP4 量子化を使うモデルです。</p>
+        </div>
+      </main>
+      <footer><span>名前を暗記するより、モデルの世代、規模、有効化されるパラメータ、量子化形式を読み取ることが大切です</span><span class="slide-no">4 / 9</span></footer>
+    </section>
+
+    <section class="slide" data-title="vLLM">
+      <header>
+        <div class="logo-lockup">
+          <svg class="brand-logo" viewBox="0 0 120 120" aria-label="vLLM logo style mark">
+            <rect x="14" y="14" width="92" height="92" rx="24" fill="#1f4d5a"/>
+            <path d="M34 42l20 38 32-48" fill="none" stroke="#fffaf0" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="82" cy="82" r="10" fill="#c39845"/>
+          </svg>
+          <div>
+            <p class="kicker">Inference Engine</p>
+            <h2>vLLM</h2>
+          </div>
+        </div>
+        <div class="stamp">推論</div>
+      </header>
+      <main>
+        <div class="two-col">
+          <div class="focus-copy">
+            <p class="lead">vLLM は本プロジェクトのモデル推論サービスです。</p>
+            <p class="support">Gemma-4-26B-A4B-NVFP4 をロードし、GPU 推論を管理し、API リクエストを受け取り、生成結果を上位サービスへ返します。同じ領域のツールとしては Ollama、TGI、llama.cpp server などがあります。</p>
+          </div>
+          <div class="feature-grid">
+            <div class="feature"><small>Load</small><h3>モデルをロード</h3><p>ローカルのモデル重みを GPU / VRAM に載せ、アクセス可能な推論サービスとして起動します。</p></div>
+            <div class="feature"><small>Serve</small><h3>API を提供</h3><p>互換性のある呼び出し口を公開し、上位の LiteLLM からモデル API のように利用できます。</p></div>
+            <div class="feature"><small>Speed</small><h3>スループット向上</h3><p>並列推論を意識したスケジューリングにより、複数人が同時に使う場面に向いています。</p></div>
+            <div class="feature"><small>GPU</small><h3>GPU を活用</h3><p>大規模モデルの計算を DGX Spark の GPU 上で実行します。</p></div>
+            <div class="feature"><small>Local</small><h3>ローカル実行</h3><p>モデルとデータを本番室内網に留め、隔離環境の要件を満たします。</p></div>
+            <div class="feature"><small>Similar</small><h3>類似ツール</h3><p>Ollama は使いやすさ寄り、vLLM は高性能なサービス化推論寄りです。</p></div>
+          </div>
+        </div>
+      </main>
+      <footer><span>vLLM は「モデルを動かすエンジン」と考えると分かりやすいです</span><span class="slide-no">5 / 9</span></footer>
+    </section>
+
+    <section class="slide" data-title="LiteLLM">
+      <header>
+        <div class="logo-lockup">
+          <svg class="brand-logo" viewBox="0 0 120 120" aria-label="litellm logo style mark">
+            <rect x="14" y="14" width="92" height="92" rx="24" fill="#b94b45"/>
+            <path d="M36 60h48M60 36v48" stroke="#fffaf0" stroke-width="9" stroke-linecap="round"/>
+            <path d="M36 60l-12-12M84 60l12-12M36 60l-12 12M84 60l12 12" stroke="#f4cf89" stroke-width="7" stroke-linecap="round"/>
+            <circle cx="60" cy="60" r="13" fill="#fffaf0"/>
+          </svg>
+          <div>
+            <p class="kicker">Proxy / Load Balancer</p>
+            <h2>litellm</h2>
+          </div>
+        </div>
+        <div class="stamp">中継</div>
+      </header>
+      <main>
+        <div class="proxy-map">
+          <div class="proxy-center">
+            <h3>本プロジェクトでは主に 2 つの機能を使います</h3>
+            <p class="support" style="color: rgba(255,250,240,.78)">LiteLLM には多くの機能がありますが、ここでは OpenAI-compatible proxy と、2 つの vLLM backend に対する load balancing に絞って利用します。</p>
+            <span class="code">routing_strategy: simple-shuffle</span>
+          </div>
+          <div class="feature-grid">
+            <div class="feature"><small>Proxy</small><h3>API 入口の統一</h3><p>OpenWebUI は LiteLLM に接続するだけで、背後に何台の vLLM があるかを意識しません。</p></div>
+            <div class="feature"><small>LB</small><h3>リクエスト分散</h3><p>利用者のリクエストを DGX Spark #1 と #2 に分散し、1 台への集中を避けます。</p></div>
+            <div class="feature"><small>Model Alias</small><h3>モデル名管理</h3><p>バックエンドのモデルを、利用者に分かりやすい名前として公開できます。</p></div>
+            <div class="feature"><small>Routing</small><h3>ルーティング戦略</h3><p>simple-shuffle はシンプルで分かりやすく、現在の 2 ノード構成に適しています。</p></div>
+            <div class="feature"><small>Future</small><h3>今後の拡張</h3><p>将来的にはレート制限、ログ、認証、fallback、利用統計なども接続できます。</p></div>
+            <div class="feature"><small>Boundary</small><h3>役割の分離</h3><p>LiteLLM は推論を行わず、リクエストを正しい推論サービスへ届けます。</p></div>
+          </div>
+        </div>
+      </main>
+      <footer><span>LiteLLM は「リクエストの交通整理役」と考えると分かりやすいです</span><span class="slide-no">6 / 9</span></footer>
+    </section>
+
+    <section class="slide" data-title="OpenWebUI">
+      <header>
+        <div class="logo-lockup">
+          <svg class="brand-logo" viewBox="0 0 120 120" aria-label="openwebui logo style mark">
+            <rect x="14" y="14" width="92" height="92" rx="24" fill="#778b5f"/>
+            <path d="M34 40h52a14 14 0 0 1 14 14v18a14 14 0 0 1-14 14H62l-20 16v-16h-8a14 14 0 0 1-14-14V54a14 14 0 0 1 14-14z" fill="#fffaf0"/>
+            <circle cx="49" cy="63" r="5" fill="#778b5f"/>
+            <circle cx="63" cy="63" r="5" fill="#778b5f"/>
+            <circle cx="77" cy="63" r="5" fill="#778b5f"/>
+          </svg>
+          <div>
+            <p class="kicker">Chat Interface</p>
+            <h2>openwebui</h2>
+          </div>
+        </div>
+        <div class="stamp">画面</div>
+      </header>
+      <main>
+        <div class="two-col">
+          <div class="focus-copy">
+            <p class="lead">OpenWebUI は利用者が実際に触る入口です。</p>
+            <p class="support">下位のモデル機能を ChatGPT のような利用体験として提供します。作業者は API を直接扱う必要がなく、内部 URL を開き、モデルを選び、質問を入力するだけです。</p>
+          </div>
+          <div class="module-list">
+            <div class="module"><span class="module-icon">話</span><div><h3>チャット対話</h3><p>コマンド説明、ログ分析、手順確認を行うメイン作業領域です。</p></div></div>
+            <div class="module"><span class="module-icon">模</span><div><h3>モデル選択</h3><p>Gemma-4-26B-A4B-NVFP4 などの利用可能モデルを表示します。</p></div></div>
+            <div class="module"><span class="module-icon">人</span><div><h3>ユーザーと権限</h3><p>実際の安全要件に合わせて、アカウント、アクセス範囲、ロールを管理できます。</p></div></div>
+            <div class="module"><span class="module-icon">知</span><div><h3>ナレッジ / RAG</h3><p>今後、内部手順書、FAQ、障害資料を接続し、回答の現場適合度を高められます。</p></div></div>
+            <div class="module"><span class="module-icon">文</span><div><h3>ファイルと履歴</h3><p>対話履歴やファイル入力を扱えます。データ保存方針との整合が必要です。</p></div></div>
+            <div class="module"><span class="module-icon">管</span><div><h3>管理設定</h3><p>LiteLLM への接続、モデル表示、システムプロンプト、利用ポリシーを設定します。</p></div></div>
+          </div>
+        </div>
+      </main>
+      <footer><span>OpenWebUI は「作業者が AI と対話する窓口」と考えると分かりやすいです</span><span class="slide-no">7 / 9</span></footer>
+    </section>
+
+    <section class="slide" data-title="ディスカッション">
+      <header>
+        <div>
+          <p class="kicker">Discussion</p>
+          <h2>ディスカッション</h2>
+        </div>
+        <div class="stamp">討論</div>
+      </header>
+      <main>
+        <div class="discussion">
+          <div class="question"><b>01</b><span>本番室 AI では、どの範囲の対話履歴を保存すべきか？</span></div>
+          <div class="question"><b>02</b><span>どの手順書や障害資料から RAG 化を始めるべきか？</span></div>
+          <div class="question"><b>03</b><span>DGX Spark #1 が停止した場合、OpenWebUI と LiteLLM をどう冗長化するか？</span></div>
+        </div>
+      </main>
+      <footer><span>ここから「動く」だけでなく、「使いやすい・管理しやすい・継続できる」仕組みに育てていきます</span><span class="slide-no">8 / 9</span></footer>
+    </section>
+
+    <section class="slide" data-title="ご清聴ありがとうございました">
+      <header>
+        <div>
+          <p class="kicker">Thank You</p>
+          <h2>ご清聴ありがとうございました</h2>
+        </div>
+        <div class="stamp">礼</div>
+      </header>
+      <main>
+        <div class="thanks">
+          <svg class="enso" viewBox="0 0 520 520" aria-hidden="true">
+            <path d="M413 136C360 70 246 60 164 113 80 168 65 289 133 371c72 86 205 91 283 19 70-63 84-164 30-238" stroke="#1f2a30" stroke-width="20" opacity=".72" fill="none" stroke-linecap="round"/>
+            <path d="M189 257c35-42 93-55 141-33 17 8 30 19 40 33" stroke="#b94b45" stroke-width="8" opacity=".72" fill="none" stroke-linecap="round"/>
+            <path d="M184 304c50 55 139 56 190 1" stroke="#1f4d5a" stroke-width="8" opacity=".68" fill="none" stroke-linecap="round"/>
+          </svg>
+          <p class="subhead">ご質問をお待ちしています。このローカル AI 支援システムを、より信頼でき、より作業現場に寄り添う形へ一緒に育てていきましょう。</p>
+        </div>
+      </main>
+      <footer><span>End</span><span class="slide-no">9 / 9</span></footer>
+    </section>
+  </div>
+
+  <div class="controls" aria-label="Slide controls">
+    <button type="button" id="prev" title="前のページ" aria-label="前のページ">‹</button>
+    <button type="button" id="next" title="次のページ" aria-label="次のページ">›</button>
+  </div>
+  <div class="progress" aria-hidden="true"><span id="progress"></span></div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const progress = document.getElementById("progress");
+    let current = 0;
+
+    function showSlide(index) {
+      current = Math.max(0, Math.min(slides.length - 1, index));
+      slides.forEach((slide, i) => slide.classList.toggle("active", i === current));
+      progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+      document.title = `${slides[current].dataset.title} - 開発者作業サポート`;
+    }
+
+    document.getElementById("prev").addEventListener("click", () => showSlide(current - 1));
+    document.getElementById("next").addEventListener("click", () => showSlide(current + 1));
+
+    window.addEventListener("keydown", (event) => {
+      if (["ArrowRight", "PageDown", " "].includes(event.key)) {
+        event.preventDefault();
+        showSlide(current + 1);
+      }
+      if (["ArrowLeft", "PageUp"].includes(event.key)) {
+        event.preventDefault();
+        showSlide(current - 1);
+      }
+      if (event.key === "Home") showSlide(0);
+      if (event.key === "End") showSlide(slides.length - 1);
+    });
+
+    let touchStartX = 0;
+    window.addEventListener("touchstart", (event) => {
+      touchStartX = event.changedTouches[0].screenX;
+    }, { passive: true });
+
+    window.addEventListener("touchend", (event) => {
+      const deltaX = event.changedTouches[0].screenX - touchStartX;
+      if (Math.abs(deltaX) > 55) showSlide(current + (deltaX < 0 ? 1 : -1));
+    }, { passive: true });
+
+    showSlide(0);
+  </script>
+</body>
+</html>

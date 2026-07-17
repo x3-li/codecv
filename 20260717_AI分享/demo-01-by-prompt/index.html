@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AIツールでWeb版PPTを作る方法</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="deck-shell">
+      <div class="progress" aria-hidden="true">
+        <span id="progress-bar"></span>
+      </div>
+
+      <main class="slides" id="slides" aria-live="polite">
+        <section class="slide cover active" data-section="01">
+          <div class="slide-grid cover-grid">
+            <div class="hero-copy">
+              <p class="kicker">Technical Sharing / 15 min</p>
+              <h1>AIツールで<br>Web版PPTを作る方法</h1>
+              <p class="lead">1つのPromptから、構成・デザイン・HTML実装まで一気通貫で作る。</p>
+            </div>
+            <div class="orbital-visual" aria-hidden="true">
+              <span class="ring ring-a"></span>
+              <span class="ring ring-b"></span>
+              <span class="core"></span>
+              <span class="node node-1"></span>
+              <span class="node node-2"></span>
+              <span class="node node-3"></span>
+            </div>
+          </div>
+          <footer class="slide-meta">
+            <span>生産技術部-AI活用</span>
+            <span>李想</span>
+          </footer>
+        </section>
+
+        <section class="slide" data-section="02">
+          <p class="kicker">Background</p>
+          <h2>従来のPPT作成は、内容より整形に時間を使いやすい</h2>
+          <div class="split">
+            <div>
+              <p class="statement">課題は「伝えたいこと」を作る前に、レイアウト調整が作業の中心になりやすいこと。</p>
+              <ul class="bullet-list">
+                <li>ページ構成を考える時間が長い</li>
+                <li>配置・余白・フォントの調整が発生する</li>
+                <li>見た目の統一に経験が必要になる</li>
+                <li>修正のたびに手作業が増えやすい</li>
+              </ul>
+            </div>
+            <div class="comparison-visual" aria-label="従来作業の負荷">
+              <div class="bar-row"><span>構成</span><i style="--w: 72%"></i></div>
+              <div class="bar-row"><span>文章</span><i style="--w: 56%"></i></div>
+              <div class="bar-row"><span>整形</span><i style="--w: 92%"></i></div>
+              <div class="bar-row"><span>修正</span><i style="--w: 78%"></i></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-section="03">
+          <p class="kicker">Goal</p>
+          <h2>目標は「Promptで作り、ブラウザで見せる」作成フローを身につけること</h2>
+          <div class="three-cards">
+            <article class="card">
+              <span class="card-index">01</span>
+              <h3>短時間で初版化</h3>
+              <p>AIに構成、文面、デザイン、HTML実装をまとめて依頼する。</p>
+            </article>
+            <article class="card">
+              <span class="card-index">02</span>
+              <h3>修正を対話化</h3>
+              <p>「もっと簡潔に」「未来感を強く」など自然文で改善する。</p>
+            </article>
+            <article class="card">
+              <span class="card-index">03</span>
+              <h3>共有を簡単に</h3>
+              <p>HTMLとして開き、画面共有やPDF出力に使う。</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="slide" data-section="04">
+          <p class="kicker">Agenda</p>
+          <h2>本日の流れは、考え方から実演までを一つの線で見る</h2>
+          <ol class="agenda-list">
+            <li><span>01</span>なぜWeb版PPTか</li>
+            <li><span>02</span>使うAI Agentツール</li>
+            <li><span>03</span>良いPromptの作り方</li>
+            <li><span>04</span>生成から修正までの流れ</li>
+            <li><span>05</span>成果物の確認と共有</li>
+          </ol>
+        </section>
+
+        <section class="slide" data-section="05">
+          <p class="kicker">Concept</p>
+          <h2>Web版PPTは、スライドを「コードとして扱える」ことが強み</h2>
+          <div class="split reverse">
+            <div class="code-window" aria-label="HTML PPTのイメージ">
+              <div class="window-dots"><i></i><i></i><i></i></div>
+              <pre><code>&lt;section class="slide"&gt;
+  &lt;h2&gt;結論をタイトルにする&lt;/h2&gt;
+  &lt;ul&gt;
+    &lt;li&gt;要点を短く整理&lt;/li&gt;
+    &lt;li&gt;CSSで統一デザイン&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/section&gt;</code></pre>
+            </div>
+            <div>
+              <p class="statement">HTML化すると、見た目も動きもファイル単位で管理できる。</p>
+              <ul class="bullet-list">
+                <li>ブラウザだけで再生できる</li>
+                <li>CSSで全ページのデザインを統一できる</li>
+                <li>JavaScriptでページ送りや進捗を制御できる</li>
+                <li>印刷機能でPDF化できる</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-section="06">
+          <p class="kicker">Tools</p>
+          <h2>Agent型ツールは、PPT作成を「依頼できる作業」に変える</h2>
+          <div class="tool-grid">
+            <article class="tool-card primary">
+              <h3>Codex</h3>
+              <p>HTML、CSS、JavaScriptの生成と修正に向く。</p>
+            </article>
+            <article class="tool-card">
+              <h3>Claude Code</h3>
+              <p>対話しながら構成と実装を整える選択肢。</p>
+            </article>
+            <article class="tool-card">
+              <h3>Kimi Code</h3>
+              <p>国内環境で検討しやすい代替候補。</p>
+            </article>
+          </div>
+          <p class="note">利用可否、社内ルール、情報管理の条件は事前確認が必要。</p>
+        </section>
+
+        <section class="slide" data-section="07">
+          <p class="kicker">Prompt</p>
+          <h2>良いPromptは「何を、誰に、どの形式で」を明確にする</h2>
+          <div class="prompt-matrix">
+            <div><span>Theme</span><strong>テーマ</strong><p>AIでWeb版PPTを作る方法</p></div>
+            <div><span>Audience</span><strong>対象者</strong><p>部門内の技術共有参加者</p></div>
+            <div><span>Output</span><strong>成果物</strong><p>ブラウザで動くHTML PPT</p></div>
+            <div><span>Design</span><strong>見た目</strong><p>未来感、極簡、統一感</p></div>
+          </div>
+        </section>
+
+        <section class="slide" data-section="08">
+          <p class="kicker">Workflow</p>
+          <h2>生成フローは「素材整理 → Prompt → 生成 → 確認 → 修正」で回す</h2>
+          <div class="flow">
+            <article><span>1</span><h3>素材整理</h3><p>目的、対象者、原稿をまとめる。</p></article>
+            <article><span>2</span><h3>Prompt作成</h3><p>ページ数、言語、構成、機能を指定する。</p></article>
+            <article><span>3</span><h3>AI生成</h3><p>HTML/CSS/JSとして初版を作る。</p></article>
+            <article><span>4</span><h3>確認</h3><p>文字量、整列、操作性を見る。</p></article>
+            <article><span>5</span><h3>修正</h3><p>差分を指示して完成度を上げる。</p></article>
+          </div>
+        </section>
+
+        <section class="slide" data-section="09">
+          <p class="kicker">Demo Plan</p>
+          <h2>成果演示では、Promptから動くページまでの変化を見せる</h2>
+          <div class="demo-layout">
+            <div class="screen-stack" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </div>
+            <ul class="bullet-list large">
+              <li>Promptを入力して、初版を生成する</li>
+              <li>タイトル、要点、ページ構成を確認する</li>
+              <li>デザインの方向性を追加指示する</li>
+              <li>ブラウザでページ送りと印刷を確認する</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="slide" data-section="10">
+          <p class="kicker">Risk</p>
+          <h2>AI生成物は、最後に人が内容と表現を確認する必要がある</h2>
+          <div class="risk-grid">
+            <article><h3>内容の正確性</h3><p>事実、固有名詞、数値は必ず確認する。</p></article>
+            <article><h3>情報管理</h3><p>社外秘や個人情報は投入前に扱いを判断する。</p></article>
+            <article><h3>表示品質</h3><p>文字溢れ、印刷、ブラウザ差分を確認する。</p></article>
+            <article><h3>過度な装飾</h3><p>目的に合わない演出は削り、伝わりやすさを優先する。</p></article>
+          </div>
+        </section>
+
+        <section class="slide" data-section="11">
+          <p class="kicker">Next Step</p>
+          <h2>次は、部門内テンプレートとして再利用できる形にする</h2>
+          <div class="timeline">
+            <article>
+              <span>Step 1</span>
+              <h3>標準Promptを作る</h3>
+              <p>テーマ、目的、ページ数、デザイン条件を固定化する。</p>
+            </article>
+            <article>
+              <span>Step 2</span>
+              <h3>テンプレート化する</h3>
+              <p>表紙、目次、まとめ、Q&Aを再利用可能にする。</p>
+            </article>
+            <article>
+              <span>Step 3</span>
+              <h3>活用例を増やす</h3>
+              <p>技術共有、改善報告、教育資料へ展開する。</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="slide" data-section="12">
+          <p class="kicker">Summary</p>
+          <h2>AIを使うと、PPT作成は「手作業」から「設計とレビュー」に変わる</h2>
+          <div class="closing-grid">
+            <div>
+              <ul class="bullet-list large">
+                <li>Promptで構成とデザインをまとめて指定する</li>
+                <li>HTML版ならブラウザで再生・共有・PDF化できる</li>
+                <li>人は目的、正確性、伝わり方を確認する</li>
+              </ul>
+            </div>
+            <div class="qa-mark" aria-hidden="true">Q&amp;A</div>
+          </div>
+          <footer class="slide-meta">
+            <span>ご清聴ありがとうございました</span>
+            <span>生産技術部-AI活用</span>
+          </footer>
+        </section>
+      </main>
+
+      <nav class="deck-controls" aria-label="スライド操作">
+        <button id="prev" type="button" aria-label="前のスライド">‹</button>
+        <button id="fullscreen" type="button" aria-label="全画面">⛶</button>
+        <button id="print-pdf" class="pdf-button" type="button" aria-label="PDFとして保存">PDF</button>
+        <button id="next" type="button" aria-label="次のスライド">›</button>
+      </nav>
+
+      <div class="page-indicator" aria-label="現在のページ">
+        <span id="current-page">1</span>
+        <span>/</span>
+        <span id="total-pages">12</span>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

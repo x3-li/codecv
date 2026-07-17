@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>如何使用 AI 生成网页版 PPT</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="deck-shell">
+      <div class="progress" aria-hidden="true">
+        <span id="progress-bar"></span>
+      </div>
+
+      <main class="slides" id="slides" aria-live="polite">
+        <section class="slide cover active" data-section="01">
+          <div class="cover-layout">
+            <div>
+              <p class="kicker">Technical Sharing / 15 min</p>
+              <h1>如何使用 AI<br>生成网页版 PPT</h1>
+              <p class="lead">把一次技术分享，从想法、结构、视觉到可演示页面，压缩成一条可复用的工作流。</p>
+            </div>
+            <div class="cover-mark" aria-hidden="true">
+              <span>AI</span>
+              <i></i>
+              <b>HTML</b>
+            </div>
+          </div>
+          <footer class="slide-footer">
+            <span>公司内部技术分享</span>
+            <span>AI + Web Presentation</span>
+          </footer>
+        </section>
+
+        <section class="slide" data-section="02">
+          <p class="kicker">Opening</p>
+          <h2>目标不是“让 AI 替你演讲”，而是让 AI 替你完成初稿和排版</h2>
+          <div class="split">
+            <div>
+              <p class="statement">对技术分享来说，最耗时的往往不是观点，而是把观点整理成一份能看的演示稿。</p>
+              <ul class="bullet-list">
+                <li>主题已经明确，但页面结构迟迟定不下来</li>
+                <li>内容越写越长，最后像文档而不是 PPT</li>
+                <li>排版和风格反复调整，打断表达思路</li>
+                <li>临近分享时，还要处理导出和兼容问题</li>
+              </ul>
+            </div>
+            <div class="quiet-chart" aria-label="PPT 制作中的时间消耗示意">
+              <div><span>构思</span><i style="--size: 48%"></i></div>
+              <div><span>成稿</span><i style="--size: 66%"></i></div>
+              <div><span>排版</span><i style="--size: 88%"></i></div>
+              <div><span>修正</span><i style="--size: 72%"></i></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-section="03">
+          <p class="kicker">Why Web</p>
+          <h2>网页版 PPT 的优势，是把演示稿当作一个可修改、可运行的前端项目</h2>
+          <div class="feature-row">
+            <article>
+              <span>01</span>
+              <h3>打开即演示</h3>
+              <p>一个 HTML 文件夹即可运行，适合本地预览、投屏和内部共享。</p>
+            </article>
+            <article>
+              <span>02</span>
+              <h3>样式可统一</h3>
+              <p>CSS 统一控制字体、间距、颜色和版式，修改成本低。</p>
+            </article>
+            <article>
+              <span>03</span>
+              <h3>适合 AI 生成</h3>
+              <p>AI 擅长输出结构化代码，能同时生成内容、视觉和交互。</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="slide" data-section="04">
+          <p class="kicker">Agenda</p>
+          <h2>15 分钟里，我们只解决一件事：如何稳定地产出一份可演示的初版</h2>
+          <ol class="agenda-list">
+            <li><span>01</span>先定义分享任务，而不是直接要 PPT</li>
+            <li><span>02</span>用提示词约束内容结构和视觉风格</li>
+            <li><span>03</span>让 AI 生成 HTML、CSS、JavaScript</li>
+            <li><span>04</span>用浏览器检查演示体验和导出效果</li>
+            <li><span>05</span>沉淀成公司内部可复用模板</li>
+          </ol>
+        </section>
+
+        <section class="slide" data-section="05">
+          <p class="kicker">Mindset</p>
+          <h2>好的提示词，本质上是一份简短的产品需求文档</h2>
+          <div class="prompt-grid">
+            <article>
+              <small>Topic</small>
+              <h3>主题</h3>
+              <p>这次到底要讲什么，边界在哪里。</p>
+            </article>
+            <article>
+              <small>Audience</small>
+              <h3>听众</h3>
+              <p>他们已有背景、期待收获和可能的疑问。</p>
+            </article>
+            <article>
+              <small>Format</small>
+              <h3>形式</h3>
+              <p>时长、页数、语言、演示环境和交付物。</p>
+            </article>
+            <article>
+              <small>Style</small>
+              <h3>风格</h3>
+              <p>视觉方向、排版密度、颜色和禁用项。</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="slide" data-section="06">
+          <p class="kicker">Prompt Template</p>
+          <h2>可复用提示词：先给边界，再给输出标准</h2>
+          <div class="code-panel">
+            <div class="window-bar"><i></i><i></i><i></i></div>
+            <pre><code>请在 demo 目录下生成一份 HTML 版 PPT。
+主题：[你的主题]
+目的：[技术分享 / 培训 / 方案汇报]
+听众：[角色、技术背景、关注点]
+演讲时间：[例如 15 分钟]
+风格：[例如日系简约、留白、低饱和、清晰图示]
+
+要求：
+1. 12 页左右，每页一个结论标题
+2. 生成 index.html、style.css、script.js、README.md
+3. 支持键盘翻页、页码、进度条、全屏和打印导出
+4. 不编造数据；需要真实截图或数据的位置请用占位符标出
+5. 完成后检查文字溢出、移动端布局和打印样式</code></pre>
+          </div>
+        </section>
+
+        <section class="slide" data-section="07">
+          <p class="kicker">Workflow</p>
+          <h2>推荐流程是“先成稿，再微调”，不要一开始就追求完美</h2>
+          <div class="flow-line">
+            <article>
+              <span>1</span>
+              <h3>准备素材</h3>
+              <p>主题、受众、时长、关键观点、必要截图。</p>
+            </article>
+            <article>
+              <span>2</span>
+              <h3>生成初版</h3>
+              <p>让 AI 一次性输出完整文件结构。</p>
+            </article>
+            <article>
+              <span>3</span>
+              <h3>浏览器验收</h3>
+              <p>检查翻页、字体、投屏比例和打印效果。</p>
+            </article>
+            <article>
+              <span>4</span>
+              <h3>对话修正</h3>
+              <p>按页指出问题，让 AI 小步修改。</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="slide" data-section="08">
+          <p class="kicker">Quality Bar</p>
+          <h2>验收一份 AI 生成的 PPT，重点看四类问题</h2>
+          <div class="check-grid">
+            <article>
+              <h3>内容</h3>
+              <ul>
+                <li>每页是否只有一个主结论</li>
+                <li>是否有事实、数字或引用需要确认</li>
+              </ul>
+            </article>
+            <article>
+              <h3>结构</h3>
+              <ul>
+                <li>故事线是否从问题走向方法</li>
+                <li>15 分钟内是否讲得完</li>
+              </ul>
+            </article>
+            <article>
+              <h3>视觉</h3>
+              <ul>
+                <li>是否留白足够，文字不拥挤</li>
+                <li>图示是否服务于理解</li>
+              </ul>
+            </article>
+            <article>
+              <h3>运行</h3>
+              <ul>
+                <li>键盘、按钮、全屏是否可用</li>
+                <li>打印成 PDF 是否完整</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="slide" data-section="09">
+          <p class="kicker">Iteration</p>
+          <h2>修改时不要说“优化一下”，要给 AI 明确的页面级反馈</h2>
+          <div class="compare">
+            <article class="muted-card">
+              <h3>低效反馈</h3>
+              <p>“这个 PPT 不够高级，帮我优化一下。”</p>
+            </article>
+            <article class="accent-card">
+              <h3>高效反馈</h3>
+              <p>“第 6 页代码块太满。请保留模板核心字段，把说明压缩到 6 行以内，并增大左右留白。”</p>
+            </article>
+          </div>
+          <p class="note">页面编号、具体问题、期望结果，是让 AI 稳定改稿的三个关键词。</p>
+        </section>
+
+        <section class="slide" data-section="10">
+          <p class="kicker">Internal Use</p>
+          <h2>在公司内部落地时，把它做成“模板 + 检查清单 + 示例库”</h2>
+          <div class="three-lanes">
+            <article>
+              <h3>模板</h3>
+              <p>统一封面、目录、总结、Q&A、代码页和流程页。</p>
+            </article>
+            <article>
+              <h3>检查清单</h3>
+              <p>内容准确性、敏感信息、截图授权、打印导出。</p>
+            </article>
+            <article>
+              <h3>示例库</h3>
+              <p>沉淀优秀提示词、常用版式和真实改稿记录。</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="slide" data-section="11">
+          <p class="kicker">Cautions</p>
+          <h2>AI 能加速表达，但最后的判断仍然要由分享者负责</h2>
+          <div class="risk-list">
+            <article>
+              <span>01</span>
+              <div>
+                <h3>不要让 AI 编数据</h3>
+                <p>没有来源的数据、客户名、案例和结论，都应改成占位符或删除。</p>
+              </div>
+            </article>
+            <article>
+              <span>02</span>
+              <div>
+                <h3>不要泄露内部信息</h3>
+                <p>粘贴日志、截图、代码和会议材料前，先确认公司规则。</p>
+              </div>
+            </article>
+            <article>
+              <span>03</span>
+              <div>
+                <h3>不要忽略演示场景</h3>
+                <p>会议室投屏、远程会议和 PDF 发送，对字号和比例要求不同。</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="slide closing" data-section="12">
+          <p class="kicker">Summary</p>
+          <h2>用 AI 生成网页版 PPT，本质是把演示稿生产变成可复用的工程流程</h2>
+          <div class="summary-grid">
+            <ul class="bullet-list large">
+              <li>先说明任务：主题、听众、时长、风格和交付物</li>
+              <li>再要求结构：一页一个结论，配套图示和演讲节奏</li>
+              <li>最后做验收：内容准确、视觉清晰、浏览器可演示</li>
+            </ul>
+            <div class="qa" aria-hidden="true">
+              <span>Q&amp;A</span>
+            </div>
+          </div>
+          <footer class="slide-footer">
+            <span>感谢观看</span>
+            <span>让 AI 做初稿，让人负责判断</span>
+          </footer>
+        </section>
+      </main>
+
+      <nav class="deck-controls" aria-label="演示控制">
+        <button id="prev" type="button" aria-label="上一页" title="上一页">‹</button>
+        <button id="fullscreen" type="button" aria-label="全屏" title="全屏">⛶</button>
+        <button id="print-pdf" class="pdf-button" type="button" aria-label="打印或导出 PDF" title="打印或导出 PDF">PDF</button>
+        <button id="next" type="button" aria-label="下一页" title="下一页">›</button>
+      </nav>
+
+      <div class="page-indicator" aria-label="当前页码">
+        <span id="current-page">1</span>
+        <span>/</span>
+        <span id="total-pages">12</span>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

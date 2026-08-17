@@ -1,0 +1,54 @@
+services:
+  litellm-proxy-db:
+    image: postgres:15
+    container_name: litellm-proxy-db
+    restart: on-failure:3
+    networks:
+      - zsj-net
+    environment:
+      TZ: Asia/Tokyo
+      POSTGRES_DB: litellm
+      POSTGRES_USER: litepostllmgres
+      POSTGRES_PASSWORD: pAssW0rd
+    volumes:
+      - litellm-db-data:/var/lib/postgresql/data
+    mem_limit: 0.5g
+    
+  litellm-proxy:
+    image: litellm/litellm:v1.95.0
+    container_name: litellm-proxy
+    ports:
+      - 4000:4000
+    restart: on-failure:3
+    networks:
+      - zsj-net
+    environment:
+      TZ: Asia/Tokyo
+      DATABASE_HOST: litellm-proxy-db
+      DATABASE_NAME: litellm
+      DATABASE_USERNAME: litepostllmgres
+      DATABASE_PASSWORD: pAssW0rd
+
+      UI_USERNAME: zsjdev2026
+      UI_PASSWORD: Zsj2026PAss
+
+      LITELLM_MASTER_KEY: sk-Ikn59cQFZqPhsX7ZXJKezWgta3/4FyxA0sB7MHl88BQ=
+      LITELLM_ENVIRONMENT: production
+      LITELLM_MODE: production
+      no_docs: True
+      no_openapi: True
+      no_redoc: True
+    volumes:
+      - ./config.yaml:/app/config.yaml
+
+    mem_limit: 0.5g
+    depends_on:
+      - litellm-proxy-db
+
+networks:
+  zsj-net:
+    external: true
+
+volumes:
+  litellm-db-data:
+  
